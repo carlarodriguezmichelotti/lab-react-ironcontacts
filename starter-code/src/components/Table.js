@@ -1,78 +1,48 @@
 import React, { Component } from 'react'
 import contacts from '../contacts.json'
 import '../Table.css'
+import Card from './Card'
 import { throws } from 'assert'
 
 class Table extends Component {
 	constructor() {
 		super()
 		this.state = {
-			contacts: contacts,
-			vaina: [],
-			index: 5,
-			idSort: 0,
-			idPopularity: 0,
-			idDel: 0,
-			idRand: 0
+			copiedcontacts: contacts.splice(0, 5)
 		}
 	}
 
-	initialState = () => {}
 	randomContact = () => {
-		const newContact = Math.floor(Math.random() * (this.state.contacts.length - 1)) + this.state.index
-		this.state.index++
-		this.state.vaina.push(this.state.contacts[newContact])
-		const newInfo = [...this.state.vaina]
-		const newIndex = this.state.index
-		this.state.idRand = 1
-		this.setState({ vaina: newInfo, index: newIndex })
+		const newContact = contacts[Math.floor(Math.random() * (contacts.length - 1))]
+		const modifiedContacts = [...this.state.copiedcontacts]
+		modifiedContacts.push(newContact)
+		this.setState({ copiedcontacts: modifiedContacts })
 	}
 
-	sortedContacts = () => {
-		this.state.vaina.sort((a, b) => (a.name > b.name ? 1 : -1))
-		const sortedVaina = [...this.state.vaina]
-		this.state.idSort = 1
-		this.setState({ vaina: sortedVaina })
+	sortByName = () => {
+		const modifiedContacts = [...this.state.copiedcontacts]
+		modifiedContacts.sort((a, b) => (a.name > b.name ? 1 : -1))
+		this.setState({ copiedcontacts: modifiedContacts })
 	}
 
 	sortByPopularity = () => {
-		console.log(this.state.vaina)
-		this.state.vaina.sort((a, b) => (a.popularity > b.popularity ? 1 : -1))
-		console.log(this.state.vaina)
-		const sortedVaina = [...this.state.vaina]
-		this.state.idPopularity = 1
-		this.setState({ vaina: sortedVaina })
+		const modifiedContacts = [...this.state.copiedcontacts]
+		modifiedContacts.sort((a, b) => (a.popularity > b.popularity ? 1 : -1))
+		this.setState({ copiedcontacts: modifiedContacts })
 	}
 
 	deleteContact = idx => {
-		const contactsCopy = [...this.state.vaina]
-		contactsCopy.splice(idx, 1)
-		this.state.idDel = 1
-
-		this.setState({
-			vaina: contactsCopy
-		})
+		const modifiedContacts = [...this.state.copiedcontacts]
+		modifiedContacts.splice(idx, 1)
+		this.setState({ copiedcontacts: modifiedContacts })
 	}
 
 	render() {
-		if (this.state.idSort === 0 && this.state.idPopularity === 0 && this.state.idDel === 0 && this.state.idRand === 0) {
-			this.state.vaina = [...this.state.contacts]
-		} else if (this.state.idSort === 1) {
-			this.state.idSort = 0
-		} else if (this.state.idPopularity === 1) {
-			this.state.idPopularity = 0
-		} else if (this.state.idDel === 1) {
-			this.state.idDel = 0
-		} else if (this.state.idRand === 1) {
-			this.state.idRand = 0
-		}
-
-		this.state.vaina.splice(this.state.index, this.state.vaina.length - 1)
 		return (
 			<div>
 				<h2>Iron Contacts</h2>
 				<button onClick={this.randomContact}>Add random contact</button>
-				<button onClick={this.sortedContacts}>Sort by name</button>
+				<button onClick={this.sortByName}>Sort by name</button>
 				<button onClick={this.sortByPopularity}>Sort by popularity</button>
 				<table>
 					<tr>
@@ -80,20 +50,19 @@ class Table extends Component {
 						<th>Name</th>
 						<th>Popularity</th>
 					</tr>
-					{this.state.vaina.map((elm, idx) => {
-						return (
-							<tr key={idx}>
-								<td>{elm.name}</td>
-								<td>
-									<img className='pictureclass' src={elm.pictureUrl} />
-								</td>
-								<td>{elm.popularity}</td>
-								<td>
-									<button onClick={() => this.deleteContact(idx)}>Delete</button>
-								</td>
-							</tr>
-						)
-					})}
+					<tr>
+						{this.state.copiedcontacts.map((elm, idx) => {
+							return (
+								<Card
+									key={idx}
+									name={elm.name}
+									popularity={elm.popularity}
+									pictureUrl={elm.pictureUrl}
+									deleteContact={() => this.deleteContact(idx)}
+								/>
+							)
+						})}
+					</tr>
 				</table>
 			</div>
 		)
